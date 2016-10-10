@@ -1,0 +1,30 @@
+{
+    "name": "sulu/activity-log",
+    "description": "Sulu library to manage activities",
+    "type": "lib",
+    "license": "MIT",
+    "require": {
+        "php": "^5.5 || ^7.0",
+        "ongr/elasticsearch-bundle": "~1.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": ">=4.8"
+    },
+    "keywords": [
+        "activity-log",
+        "activitis"
+    ],
+    "authors": [
+        {
+            "name": "Sulu activity-log",
+            "homepage": "https://github.com/sulu/activity-log/contributors"
+        }
+    ],
+    "homepage": "https://github.com/sulu/activity-log",
+    "autoload": {
+        "psr-4": {
+            "Sulu\\Component\\ActivityLog\\": ""
+        }
+    }
+}
+
