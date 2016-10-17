@@ -12,12 +12,12 @@
 namespace Sulu\Component\ActivityLog\Events;
 
 /**
- * Container for activity event-names.
+ * Container for activity-log event-names.
  */
 final class Events
 {
-    const PRE_LOG_ACTIVITY_EVENT = 'sulu_activity.pre_log';
-    const POST_LOG_ACTIVITY_EVENT = 'sulu_activity.post_log';
+    const PERSIST_ACTIVITY_LOG_EVENT = 'sulu_activity_log.persist';
+    const FLUSH_ACTIVITY_LOG_EVENT = 'sulu_activity_log.flush';
 
     /**
      * Private constructor to avoid instanciation of this class.

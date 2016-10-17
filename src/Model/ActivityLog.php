@@ -9,16 +9,28 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Sulu\Component\ActivityLog\Activity;
+namespace Sulu\Component\ActivityLog\Model;
 
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * Container for activity data.
+ * Container for activity-log data.
  */
-class Activity implements ActivityInterface
+class ActivityLog implements ActivityLogInterface
 {
+    /**
+     * Create new instance of activity-log.
+     *
+     * @param string $type
+     *
+     * @return self
+     */
+    public static function create($type)
+    {
+        return new self($type);
+    }
+
     /**
      * @var string
      */
@@ -55,7 +67,7 @@ class Activity implements ActivityInterface
     protected $creator;
 
     /**
-     * @var ActivityInterface
+     * @var ActivityLogInterface
      */
     protected $parent;
 
@@ -231,11 +243,11 @@ class Activity implements ActivityInterface
     /**
      * Set parent.
      *
-     * @param ActivityInterface $parent
+     * @param ActivityLogInterface $parent
      *
      * @return $this
      */
-    public function setParent(ActivityInterface $parent)
+    public function setParent(ActivityLogInterface $parent)
     {
         $this->parent = $parent;
 

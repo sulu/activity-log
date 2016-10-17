@@ -9,14 +9,14 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Sulu\Component\ActivityLog\Activity;
+namespace Sulu\Component\ActivityLog\Model;
 
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * Interface for activities.
  */
-interface ActivityInterface
+interface ActivityLogInterface
 {
     /**
      * Returns Uuid.
@@ -70,7 +70,7 @@ interface ActivityInterface
     /**
      * Returns Parent.
      *
-     * @return ActivityInterface
+     * @return ActivityLogInterface
      */
     public function getParent();
 }

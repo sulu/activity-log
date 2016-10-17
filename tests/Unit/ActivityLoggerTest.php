@@ -12,12 +12,13 @@
 namespace Sulu\Component\ActivityLog\Tests\Unit;
 
 use Prophecy\Argument;
-use Sulu\Component\ActivityLog\Activity\Activity;
 use Sulu\Component\ActivityLog\ActivityLogger;
 use Sulu\Component\ActivityLog\ActivityLoggerInterface;
-use Sulu\Component\ActivityLog\Events\ActivityEvent;
 use Sulu\Component\ActivityLog\Events\Events;
-use Sulu\Component\ActivityLog\Storage\ActivityStorageInterface;
+use Sulu\Component\ActivityLog\Events\FlushActivityLogEvent;
+use Sulu\Component\ActivityLog\Events\PersistActivityLogEvent;
+use Sulu\Component\ActivityLog\Model\ActivityLog;
+use Sulu\Component\ActivityLog\Storage\ActivityLogStorageInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -26,7 +27,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class ActivityLoggerTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var ActivityStorageInterface
+     * @var ActivityLogStorageInterface
      */
     protected $storage;
 
@@ -42,7 +43,7 @@ class ActivityLoggerTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->storage = $this->prophesize(ActivityStorageInterface::class);
+        $this->storage = $this->prophesize(ActivityLogStorageInterface::class);
         $this->eventDispatcher = $this->prophesize(EventDispatcherInterface::class);
 
         $this->logger = new ActivityLogger($this->storage->reveal(), $this->eventDispatcher->reveal());
@@ -50,65 +51,63 @@ class ActivityLoggerTest extends \PHPUnit_Framework_TestCase
 
     public function testFind()
     {
-        $activity = new Activity('default');
-        $this->storage->find($activity->getUuid())->willReturn($activity);
+        $activityLog = ActivityLog::create('default');
+        $this->storage->find($activityLog->getUuid())->willReturn($activityLog);
 
-        $this->assertEquals($activity, $this->logger->find($activity->getUuid()));
+        $this->assertEquals($activityLog, $this->logger->find($activityLog->getUuid()));
     }
 
     public function testFindAll()
     {
-        $activities = [new Activity('default'), new Activity('default')];
-        $this->storage->findAll(2, 2)->willReturn($activities);
+        $activityLogs = [ActivityLog::create('default'), ActivityLog::create('default')];
+        $this->storage->findAll(2, 2)->willReturn($activityLogs);
 
-        $this->assertEquals($activities, $this->logger->findAll(2, 2));
+        $this->assertEquals($activityLogs, $this->logger->findAll(2, 2));
     }
 
     public function testFindByParent()
     {
-        $activity = new Activity('default');
-        $activities = [new Activity('default'), new Activity('default')];
-        $this->storage->findByParent($activity, 2, 2)->willReturn($activities);
+        $activityLog = ActivityLog::create('default');
+        $activityLogs = [ActivityLog::create('default'), ActivityLog::create('default')];
+        $this->storage->findByParent($activityLog, 2, 2)->willReturn($activityLogs);
 
-        $this->assertEquals($activities, $this->logger->findByParent($activity, 2, 2));
+        $this->assertEquals($activityLogs, $this->logger->findByParent($activityLog, 2, 2));
     }
 
-    public function testLog()
+    public function testPersist()
     {
-        $activity = new Activity('default');
+        $activityLog = ActivityLog::create('default');
 
-        $this->storage->persist($activity)->shouldBeCalledTimes(1);
+        $this->storage->persist($activityLog)->shouldBeCalledTimes(1);
         $this->eventDispatcher->dispatch(
-            Events::PRE_LOG_ACTIVITY_EVENT,
+            Events::PERSIST_ACTIVITY_LOG_EVENT,
             Argument::that(
-                function (ActivityEvent $event) use ($activity) {
-                    return $event->getActivity() === $activity;
+                function (PersistActivityLogEvent $event) use ($activityLog) {
+                    return $event->getActivityLog() === $activityLog;
                 }
             )
         )->shouldBeCalledTimes(1);
 
-        $this->assertEquals($activity, $this->logger->log($activity));
+        $this->assertEquals($activityLog, $this->logger->persist($activityLog));
 
-        return $activity;
+        return $activityLog;
     }
 
     public function testFlush()
     {
-        $activities = [
-            $this->logger->log(new Activity('default')),
-            $this->logger->log(new Activity('default')),
+        $activityLogs = [
+            $this->logger->persist(ActivityLog::create('default')),
+            $this->logger->persist(ActivityLog::create('default')),
         ];
 
-        foreach ($activities as $activity) {
-            $this->eventDispatcher->dispatch(
-                Events::POST_LOG_ACTIVITY_EVENT,
-                Argument::that(
-                    function (ActivityEvent $event) use ($activity) {
-                        return $activity === $event->getActivity();
-                    }
-                )
-            )->shouldBeCalledTimes(1);
-        }
+        $this->eventDispatcher->dispatch(
+            Events::FLUSH_ACTIVITY_LOG_EVENT,
+            Argument::that(
+                function (FlushActivityLogEvent $event) use ($activityLogs) {
+                    return $activityLogs === $event->getActivityLogs();
+                }
+            )
+        )->shouldBeCalledTimes(1);
 
         $this->storage->flush()->shouldBeCalledTimes(1);
 

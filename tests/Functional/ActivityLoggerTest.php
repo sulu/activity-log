@@ -14,13 +14,14 @@ namespace Sulu\Component\ActivityLog\Tests\Functional;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Prophecy\Argument;
-use Sulu\Component\ActivityLog\Activity\Activity;
 use Sulu\Component\ActivityLog\ActivityLogger;
 use Sulu\Component\ActivityLog\ActivityLoggerInterface;
-use Sulu\Component\ActivityLog\Events\ActivityEvent;
 use Sulu\Component\ActivityLog\Events\Events;
-use Sulu\Component\ActivityLog\Storage\ActivityStorageInterface;
-use Sulu\Component\ActivityLog\Storage\ArrayStorage\ArrayActivityStorage;
+use Sulu\Component\ActivityLog\Events\FlushActivityLogEvent;
+use Sulu\Component\ActivityLog\Events\PersistActivityLogEvent;
+use Sulu\Component\ActivityLog\Model\ActivityLog;
+use Sulu\Component\ActivityLog\Storage\ActivityLogStorageInterface;
+use Sulu\Component\ActivityLog\Storage\ArrayStorage\ArrayActivityLogStorage;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -34,7 +35,7 @@ class ActivityLoggerTest extends \PHPUnit_Framework_TestCase
     protected $collection;
 
     /**
-     * @var ActivityStorageInterface
+     * @var ActivityLogStorageInterface
      */
     protected $storage;
 
@@ -51,29 +52,29 @@ class ActivityLoggerTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->collection = new ArrayCollection();
-        $this->storage = new ArrayActivityStorage($this->collection);
+        $this->storage = new ArrayActivityLogStorage($this->collection);
         $this->eventDispatcher = $this->prophesize(EventDispatcherInterface::class);
 
         $this->logger = new ActivityLogger($this->storage, $this->eventDispatcher->reveal());
     }
 
-    public function testLog()
+    public function testPersist()
     {
-        $activity = new Activity('default');
-        $this->logger->log($activity);
+        $activityLog = ActivityLog::create('default');
+        $this->logger->persist($activityLog);
 
-        $this->eventDispatcher->dispatch(Events::PRE_LOG_ACTIVITY_EVENT, Argument::type(ActivityEvent::class))
+        $this->eventDispatcher->dispatch(Events::PERSIST_ACTIVITY_LOG_EVENT, Argument::type(PersistActivityLogEvent::class))
             ->shouldBeCalledTimes(1);
 
-        $this->assertEquals([$activity], $this->collection->toArray());
+        $this->assertEquals([$activityLog], $this->collection->toArray());
     }
 
-    public function testLogMultipleTimes()
+    public function testPersistMultipleTimes()
     {
-        $this->logger->log(new Activity('default'));
-        $this->logger->log(new Activity('default'));
+        $this->logger->persist(ActivityLog::create('default'));
+        $this->logger->persist(ActivityLog::create('default'));
 
-        $this->eventDispatcher->dispatch(Events::PRE_LOG_ACTIVITY_EVENT, Argument::type(ActivityEvent::class))
+        $this->eventDispatcher->dispatch(Events::PERSIST_ACTIVITY_LOG_EVENT, Argument::type(PersistActivityLogEvent::class))
             ->shouldBeCalledTimes(2);
 
         $this->assertCount(2, $this->collection->toArray());
@@ -81,30 +82,30 @@ class ActivityLoggerTest extends \PHPUnit_Framework_TestCase
 
     public function testFlush()
     {
-        $this->logger->log(new Activity('default'));
-        $this->logger->log(new Activity('default'));
+        $this->logger->persist(ActivityLog::create('default'));
+        $this->logger->persist(ActivityLog::create('default'));
 
-        $this->eventDispatcher->dispatch(Events::PRE_LOG_ACTIVITY_EVENT, Argument::type(ActivityEvent::class))
+        $this->eventDispatcher->dispatch(Events::PERSIST_ACTIVITY_LOG_EVENT, Argument::type(PersistActivityLogEvent::class))
             ->shouldBeCalledTimes(2);
-        $this->eventDispatcher->dispatch(Events::POST_LOG_ACTIVITY_EVENT, Argument::type(ActivityEvent::class))
-            ->shouldBeCalledTimes(2);
+        $this->eventDispatcher->dispatch(Events::FLUSH_ACTIVITY_LOG_EVENT, Argument::type(FlushActivityLogEvent::class))
+            ->shouldBeCalledTimes(1);
 
         $this->logger->flush();
     }
 
     public function testFind()
     {
-        $activity = new Activity('default');
-        $this->collection->add($activity);
+        $activityLog = ActivityLog::create('default');
+        $this->collection->add($activityLog);
 
-        $this->assertEquals($activity, $this->logger->find($activity->getUuid()));
+        $this->assertEquals($activityLog, $this->logger->find($activityLog->getUuid()));
     }
 
     public function testFindAll()
     {
-        $this->collection->add(new Activity('default'));
-        $this->collection->add(new Activity('default'));
-        $this->collection->add(new Activity('default'));
+        $this->collection->add(ActivityLog::create('default'));
+        $this->collection->add(ActivityLog::create('default'));
+        $this->collection->add(ActivityLog::create('default'));
 
         $this->assertCount(3, $this->logger->findAll());
         $this->assertCount(2, $this->logger->findAll(1, 2));
@@ -113,15 +114,15 @@ class ActivityLoggerTest extends \PHPUnit_Framework_TestCase
 
     public function testFindByParent()
     {
-        $parentActivity = new Activity('default');
-        $activity = new Activity('default');
-        $activity->setParent($parentActivity);
+        $parentActivityLog = ActivityLog::create('default');
+        $activityLog = ActivityLog::create('default');
+        $activityLog->setParent($parentActivityLog);
 
-        $this->logger->log($parentActivity);
-        $this->logger->log($activity);
+        $this->logger->persist($parentActivityLog);
+        $this->logger->persist($activityLog);
 
-        $this->assertCount(1, $this->logger->findByParent($parentActivity));
-        $this->assertEquals([$activity], $this->logger->findByParent($parentActivity));
-        $this->assertCount(0, $this->logger->findByParent($activity));
+        $this->assertCount(1, $this->logger->findByParent($parentActivityLog));
+        $this->assertEquals([$activityLog], $this->logger->findByParent($parentActivityLog));
+        $this->assertCount(0, $this->logger->findByParent($activityLog));
     }
 }

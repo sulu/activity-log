@@ -13,13 +13,13 @@ namespace Sulu\Component\ActivityLog\Storage\ArrayStorage;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Sulu\Component\ActivityLog\Activity\ActivityInterface;
-use Sulu\Component\ActivityLog\Storage\ActivityStorageInterface;
+use Sulu\Component\ActivityLog\Model\ActivityLogInterface;
+use Sulu\Component\ActivityLog\Storage\ActivityLogStorageInterface;
 
 /**
- * Implementation of activity-storage using doctrine-collection.
+ * Implementation of activity-log-storage using doctrine-collection.
  */
-class ArrayActivityStorage implements ActivityStorageInterface
+class ArrayActivityLogStorage implements ActivityLogStorageInterface
 {
     /**
      * @var Collection
@@ -39,12 +39,12 @@ class ArrayActivityStorage implements ActivityStorageInterface
         $this->collection = $collection ?: new ArrayCollection();
 
         $this->collection->forAll(
-            function ($index, ActivityInterface $activity) {
-                if (!$activity->getParent()) {
+            function ($index, ActivityLogInterface $activityLog) {
+                if (!$activityLog->getParent()) {
                     return true;
                 }
 
-                $this->buildChildren($activity);
+                $this->buildChildren($activityLog);
 
                 return true;
             }
@@ -56,10 +56,10 @@ class ArrayActivityStorage implements ActivityStorageInterface
      */
     public function find($uuid)
     {
-        /** @var ActivityInterface $activity */
-        foreach ($this->collection as $activity) {
-            if ($uuid === $activity->getUuid()) {
-                return $activity;
+        /** @var ActivityLogInterface $activityLog */
+        foreach ($this->collection as $activityLog) {
+            if ($uuid === $activityLog->getUuid()) {
+                return $activityLog;
             }
         }
 
@@ -81,27 +81,27 @@ class ArrayActivityStorage implements ActivityStorageInterface
     /**
      * {@inheritdoc}
      */
-    public function findByParent(ActivityInterface $activity, $page = 1, $pageSize = null)
+    public function findByParent(ActivityLogInterface $activityLog, $page = 1, $pageSize = null)
     {
-        if (!array_key_exists($activity->getUuid(), $this->children)) {
+        if (!array_key_exists($activityLog->getUuid(), $this->children)) {
             return [];
         }
 
-        return array_values($this->children[$activity->getUuid()]->slice(($page - 1) * $pageSize, $pageSize));
+        return array_values($this->children[$activityLog->getUuid()]->slice(($page - 1) * $pageSize, $pageSize));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function persist(ActivityInterface $activity)
+    public function persist(ActivityLogInterface $activityLog)
     {
-        if (!$activity->getParent()) {
-            $this->collection->add($activity);
+        if (!$activityLog->getParent()) {
+            $this->collection->add($activityLog);
 
-            return $activity;
+            return $activityLog;
         }
 
-        return $this->buildChildren($activity);
+        return $this->buildChildren($activityLog);
     }
 
     /**
@@ -112,15 +112,15 @@ class ArrayActivityStorage implements ActivityStorageInterface
         // do nothing
     }
 
-    private function buildChildren(ActivityInterface $activity)
+    private function buildChildren(ActivityLogInterface $activityLog)
     {
-        $parentActivity = $activity->getParent();
-        if (!array_key_exists($parentActivity->getUuid(), $this->children)) {
-            $this->children[$parentActivity->getUuid()] = new ArrayCollection();
+        $parentActivityLog = $activityLog->getParent();
+        if (!array_key_exists($parentActivityLog->getUuid(), $this->children)) {
+            $this->children[$parentActivityLog->getUuid()] = new ArrayCollection();
         }
 
-        $this->children[$parentActivity->getUuid()][] = $activity;
+        $this->children[$parentActivityLog->getUuid()][] = $activityLog;
 
-        return $activity;
+        return $activityLog;
     }
 }

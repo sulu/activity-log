@@ -9,17 +9,17 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Sulu\Component\ActivityLog;
+namespace Sulu\Component\ActivityLog\Storage;
 
 use Sulu\Component\ActivityLog\Model\ActivityLogInterface;
 
 /**
- * Interface for activity-logger.
+ * Interface for activity-log-storage.
  */
-interface ActivityLoggerInterface
+interface ActivityLogStorageInterface
 {
     /**
-     * Returns activity-log by given uuid.
+     * Find activity-log by uuid.
      *
      * @param string $uuid
      *
@@ -28,7 +28,7 @@ interface ActivityLoggerInterface
     public function find($uuid);
 
     /**
-     * Find all activities.
+     * Find all activity-logs.
      *
      * @param int $page
      * @param int $pageSize
@@ -38,18 +38,18 @@ interface ActivityLoggerInterface
     public function findAll($page = 1, $pageSize = null);
 
     /**
-     * Find activities by given parent.
+     * Find activities by given parent activity-log.
      *
      * @param ActivityLogInterface $activityLog
      * @param int $page
      * @param int $pageSize
      *
-     * @return ActivityLogInterface[]
+     * @return ActivityLogInterface
      */
     public function findByParent(ActivityLogInterface $activityLog, $page = 1, $pageSize = null);
 
     /**
-     * Stores activity-log.
+     * Persists activity-log.
      *
      * @param ActivityLogInterface $activityLog
      *

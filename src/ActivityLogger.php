@@ -11,10 +11,11 @@
 
 namespace Sulu\Component\ActivityLog;
 
-use Sulu\Component\ActivityLog\Activity\ActivityInterface;
-use Sulu\Component\ActivityLog\Events\ActivityEvent;
 use Sulu\Component\ActivityLog\Events\Events;
-use Sulu\Component\ActivityLog\Storage\ActivityStorageInterface;
+use Sulu\Component\ActivityLog\Events\FlushActivityLogEvent;
+use Sulu\Component\ActivityLog\Events\PersistActivityLogEvent;
+use Sulu\Component\ActivityLog\Model\ActivityLogInterface;
+use Sulu\Component\ActivityLog\Storage\ActivityLogStorageInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -23,7 +24,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class ActivityLogger implements ActivityLoggerInterface
 {
     /**
-     * @var ActivityStorageInterface
+     * @var ActivityLogStorageInterface
      */
     protected $storage;
 
@@ -33,15 +34,15 @@ class ActivityLogger implements ActivityLoggerInterface
     protected $eventDispatcher;
 
     /**
-     * @var ActivityInterface[]
+     * @var ActivityLogInterface[]
      */
     protected $newActivities = [];
 
     /**
-     * @param ActivityStorageInterface $storage
+     * @param ActivityLogStorageInterface $storage
      * @param EventDispatcherInterface $eventDispatcher
      */
-    public function __construct(ActivityStorageInterface $storage, EventDispatcherInterface $eventDispatcher)
+    public function __construct(ActivityLogStorageInterface $storage, EventDispatcherInterface $eventDispatcher)
     {
         $this->storage = $storage;
         $this->eventDispatcher = $eventDispatcher;
@@ -66,22 +67,22 @@ class ActivityLogger implements ActivityLoggerInterface
     /**
      * {@inheritdoc}
      */
-    public function findByParent(ActivityInterface $activity, $page = 1, $pageSize = null)
+    public function findByParent(ActivityLogInterface $activityLog, $page = 1, $pageSize = null)
     {
-        return $this->storage->findByParent($activity, $page, $pageSize);
+        return $this->storage->findByParent($activityLog, $page, $pageSize);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function log(ActivityInterface $activity)
+    public function persist(ActivityLogInterface $activityLog)
     {
-        $this->newActivities[] = $activity;
-        $this->storage->persist($activity);
+        $this->newActivities[] = $activityLog;
+        $this->storage->persist($activityLog);
 
-        $this->eventDispatcher->dispatch(Events::PRE_LOG_ACTIVITY_EVENT, new ActivityEvent($activity));
+        $this->eventDispatcher->dispatch(Events::PERSIST_ACTIVITY_LOG_EVENT, new PersistActivityLogEvent($activityLog));
 
-        return $activity;
+        return $activityLog;
     }
 
     /**
@@ -91,9 +92,14 @@ class ActivityLogger implements ActivityLoggerInterface
     {
         $this->storage->flush();
 
-        foreach ($this->newActivities as $activity) {
-            $this->eventDispatcher->dispatch(Events::POST_LOG_ACTIVITY_EVENT, new ActivityEvent($activity));
+        if (0 === count($this->newActivities)) {
+            return;
         }
+
+        $this->eventDispatcher->dispatch(
+            Events::FLUSH_ACTIVITY_LOG_EVENT,
+            new FlushActivityLogEvent($this->newActivities)
+        );
 
         $this->newActivities = [];
     }
