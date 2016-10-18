@@ -5,7 +5,9 @@
     "license": "MIT",
     "require": {
         "php": "^5.5 || ^7.0",
-        "ongr/elasticsearch-bundle": "~1.0"
+        "symfony/event-dispatcher": "~2.7 | ~3.0",
+        "ramsey/uuid": "^3.5",
+        "doctrine/common": "~2.4"
     },
     "require-dev": {
         "phpunit/phpunit": ">=4.8"
@@ -23,8 +25,12 @@
     "homepage": "https://github.com/sulu/activity-log",
     "autoload": {
         "psr-4": {
-            "Sulu\\Component\\ActivityLog\\": ""
+            "Sulu\\Component\\ActivityLog\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Sulu\\Component\\ActivityLog\\Tests\\": "tests"
         }
     }
 }
-
