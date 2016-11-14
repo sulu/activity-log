@@ -225,7 +225,7 @@ class ActivityLog implements ActivityLogInterface
      *
      * @return $this
      */
-    public function setCreator(UserInterface $creator)
+    public function setCreator(UserInterface $creator = null)
     {
         $this->creator = $creator;
 
