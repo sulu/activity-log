@@ -13,6 +13,7 @@ namespace Sulu\Component\ActivityLog\Storage\ArrayStorage;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Sulu\Component\ActivityLog\Model\ActivityLog;
 use Sulu\Component\ActivityLog\Model\ActivityLogInterface;
 use Sulu\Component\ActivityLog\Storage\ActivityLogStorageInterface;
 
@@ -49,6 +50,14 @@ class ArrayActivityLogStorage implements ActivityLogStorageInterface
                 return true;
             }
         );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function create($type, $uuid = null)
+    {
+        return new ActivityLog($type, $uuid);
     }
 
     /**

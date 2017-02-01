@@ -60,7 +60,7 @@ class ActivityLoggerTest extends \PHPUnit_Framework_TestCase
 
     public function testPersist()
     {
-        $activityLog = ActivityLog::create('default');
+        $activityLog = new ActivityLog('default');
         $this->logger->persist($activityLog);
 
         $this->eventDispatcher->dispatch(Events::PERSIST_ACTIVITY_LOG_EVENT, Argument::type(PersistActivityLogEvent::class))
@@ -71,8 +71,8 @@ class ActivityLoggerTest extends \PHPUnit_Framework_TestCase
 
     public function testPersistMultipleTimes()
     {
-        $this->logger->persist(ActivityLog::create('default'));
-        $this->logger->persist(ActivityLog::create('default'));
+        $this->logger->persist(new ActivityLog('default'));
+        $this->logger->persist(new ActivityLog('default'));
 
         $this->eventDispatcher->dispatch(Events::PERSIST_ACTIVITY_LOG_EVENT, Argument::type(PersistActivityLogEvent::class))
             ->shouldBeCalledTimes(2);
@@ -82,8 +82,8 @@ class ActivityLoggerTest extends \PHPUnit_Framework_TestCase
 
     public function testFlush()
     {
-        $this->logger->persist(ActivityLog::create('default'));
-        $this->logger->persist(ActivityLog::create('default'));
+        $this->logger->persist(new ActivityLog('default'));
+        $this->logger->persist(new ActivityLog('default'));
 
         $this->eventDispatcher->dispatch(Events::PERSIST_ACTIVITY_LOG_EVENT, Argument::type(PersistActivityLogEvent::class))
             ->shouldBeCalledTimes(2);
@@ -95,7 +95,7 @@ class ActivityLoggerTest extends \PHPUnit_Framework_TestCase
 
     public function testFind()
     {
-        $activityLog = ActivityLog::create('default');
+        $activityLog = new ActivityLog('default');
         $this->collection->add($activityLog);
 
         $this->assertEquals($activityLog, $this->logger->find($activityLog->getUuid()));
@@ -103,9 +103,9 @@ class ActivityLoggerTest extends \PHPUnit_Framework_TestCase
 
     public function testFindAll()
     {
-        $this->collection->add(ActivityLog::create('default'));
-        $this->collection->add(ActivityLog::create('default'));
-        $this->collection->add(ActivityLog::create('default'));
+        $this->collection->add(new ActivityLog('default'));
+        $this->collection->add(new ActivityLog('default'));
+        $this->collection->add(new ActivityLog('default'));
 
         $this->assertCount(3, $this->logger->findAll());
         $this->assertCount(2, $this->logger->findAll(1, 2));
@@ -114,8 +114,8 @@ class ActivityLoggerTest extends \PHPUnit_Framework_TestCase
 
     public function testFindByParent()
     {
-        $parentActivityLog = ActivityLog::create('default');
-        $activityLog = ActivityLog::create('default');
+        $parentActivityLog = new ActivityLog('default');
+        $activityLog = new ActivityLog('default');
         $activityLog->setParent($parentActivityLog);
 
         $this->logger->persist($parentActivityLog);

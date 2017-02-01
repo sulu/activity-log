@@ -40,11 +40,29 @@ interface ActivityLogInterface
     public function getTitle();
 
     /**
+     * Set title.
+     *
+     * @param string $title
+     *
+     * @return $this
+     */
+    public function setTitle($title);
+
+    /**
      * Returns Message.
      *
      * @return string
      */
     public function getMessage();
+
+    /**
+     * Set message.
+     *
+     * @param string $message
+     *
+     * @return $this
+     */
+    public function setMessage($message);
 
     /**
      * Returns Data.
@@ -54,11 +72,29 @@ interface ActivityLogInterface
     public function getData();
 
     /**
+     * Set data.
+     *
+     * @param string|array $data
+     *
+     * @return $this
+     */
+    public function setData($data);
+
+    /**
      * Returns Created.
      *
      * @return \DateTime
      */
     public function getCreated();
+
+    /**
+     * Set created.
+     *
+     * @param \DateTime $created
+     *
+     * @return $this
+     */
+    public function setCreated(\DateTime $created);
 
     /**
      * Returns Creator.
@@ -68,9 +104,27 @@ interface ActivityLogInterface
     public function getCreator();
 
     /**
+     * Set creator.
+     *
+     * @param UserInterface $creator
+     *
+     * @return $this
+     */
+    public function setCreator(UserInterface $creator = null);
+
+    /**
      * Returns Parent.
      *
      * @return ActivityLogInterface
      */
     public function getParent();
+
+    /**
+     * Set parent.
+     *
+     * @param ActivityLogInterface $parent
+     *
+     * @return $this
+     */
+    public function setParent(ActivityLogInterface $parent = null);
 }

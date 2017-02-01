@@ -51,6 +51,14 @@ class ActivityLogger implements ActivityLoggerInterface
     /**
      * {@inheritdoc}
      */
+    public function create($type, $uuid = null)
+    {
+        return $this->storage->create($type, $uuid);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function find($uuid)
     {
         return $this->storage->find($uuid);
