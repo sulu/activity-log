@@ -20,18 +20,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class ActivityLog implements ActivityLogInterface
 {
     /**
-     * Create new instance of activity-log.
-     *
-     * @param string $type
-     *
-     * @return self
-     */
-    public static function create($type)
-    {
-        return new self($type);
-    }
-
-    /**
      * @var string
      */
     protected $uuid;
@@ -71,11 +59,15 @@ class ActivityLog implements ActivityLogInterface
      */
     protected $parent;
 
-    public function __construct($type)
+    /**
+     * @param string $type
+     * @param string $uuid
+     */
+    public function __construct($type, $uuid = null)
     {
         $this->type = $type;
 
-        $this->uuid = Uuid::uuid4()->toString();
+        $this->uuid = $uuid ?: Uuid::uuid4()->toString();
     }
 
     /**
@@ -131,11 +123,7 @@ class ActivityLog implements ActivityLogInterface
     }
 
     /**
-     * Set title.
-     *
-     * @param string $title
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function setTitle($title)
     {
@@ -153,11 +141,7 @@ class ActivityLog implements ActivityLogInterface
     }
 
     /**
-     * Set message.
-     *
-     * @param string $message
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function setMessage($message)
     {
@@ -175,11 +159,7 @@ class ActivityLog implements ActivityLogInterface
     }
 
     /**
-     * Set data.
-     *
-     * @param array $data
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function setData($data)
     {
@@ -197,11 +177,7 @@ class ActivityLog implements ActivityLogInterface
     }
 
     /**
-     * Set created.
-     *
-     * @param \DateTime $created
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function setCreated(\DateTime $created)
     {
@@ -219,11 +195,7 @@ class ActivityLog implements ActivityLogInterface
     }
 
     /**
-     * Set creator.
-     *
-     * @param UserInterface $creator
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function setCreator(UserInterface $creator = null)
     {
@@ -241,13 +213,9 @@ class ActivityLog implements ActivityLogInterface
     }
 
     /**
-     * Set parent.
-     *
-     * @param ActivityLogInterface $parent
-     *
-     * @return $this
+     * {@inheritdoc}
      */
-    public function setParent(ActivityLogInterface $parent)
+    public function setParent(ActivityLogInterface $parent = null)
     {
         $this->parent = $parent;
 

@@ -19,6 +19,16 @@ use Sulu\Component\ActivityLog\Model\ActivityLogInterface;
 interface ActivityLoggerInterface
 {
     /**
+     * Create new activity-log.
+     *
+     * @param string $type
+     * @param string $uuid
+     *
+     * @return ActivityLogInterface
+     */
+    public function create($type, $uuid = null);
+
+    /**
      * Returns activity-log by given uuid.
      *
      * @param string $uuid

@@ -18,6 +18,7 @@ use Sulu\Component\ActivityLog\Events\Events;
 use Sulu\Component\ActivityLog\Events\FlushActivityLogEvent;
 use Sulu\Component\ActivityLog\Events\PersistActivityLogEvent;
 use Sulu\Component\ActivityLog\Model\ActivityLog;
+use Sulu\Component\ActivityLog\Model\ActivityLogInterface;
 use Sulu\Component\ActivityLog\Storage\ActivityLogStorageInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -49,9 +50,33 @@ class ActivityLoggerTest extends \PHPUnit_Framework_TestCase
         $this->logger = new ActivityLogger($this->storage->reveal(), $this->eventDispatcher->reveal());
     }
 
+    public function testCreate()
+    {
+        $this->storage->create('default', null)->shouldBeCalled()->willReturn(new ActivityLog('default'));
+
+        $activityLog = $this->logger->create('default');
+
+        $this->assertInstanceOf(ActivityLogInterface::class, $activityLog);
+        $this->assertEquals('default', $activityLog->getType());
+        $this->assertNotNull($activityLog->getUuid());
+    }
+
+    public function testCreateWithUuid()
+    {
+        $this->storage->create('default', '123-123-123')
+            ->shouldBeCalled()
+            ->willReturn(new ActivityLog('default', '123-123-123'));
+
+        $activityLog = $this->logger->create('default', '123-123-123');
+
+        $this->assertInstanceOf(ActivityLogInterface::class, $activityLog);
+        $this->assertEquals('default', $activityLog->getType());
+        $this->assertEquals('123-123-123', $activityLog->getUuid());
+    }
+
     public function testFind()
     {
-        $activityLog = ActivityLog::create('default');
+        $activityLog = new ActivityLog('default');
         $this->storage->find($activityLog->getUuid())->willReturn($activityLog);
 
         $this->assertEquals($activityLog, $this->logger->find($activityLog->getUuid()));
@@ -59,7 +84,7 @@ class ActivityLoggerTest extends \PHPUnit_Framework_TestCase
 
     public function testFindAll()
     {
-        $activityLogs = [ActivityLog::create('default'), ActivityLog::create('default')];
+        $activityLogs = [new ActivityLog('default'), new ActivityLog('default')];
         $this->storage->findAll(2, 2)->willReturn($activityLogs);
 
         $this->assertEquals($activityLogs, $this->logger->findAll(2, 2));
@@ -67,8 +92,8 @@ class ActivityLoggerTest extends \PHPUnit_Framework_TestCase
 
     public function testFindByParent()
     {
-        $activityLog = ActivityLog::create('default');
-        $activityLogs = [ActivityLog::create('default'), ActivityLog::create('default')];
+        $activityLog = new ActivityLog('default');
+        $activityLogs = [new ActivityLog('default'), new ActivityLog('default')];
         $this->storage->findByParent($activityLog, 2, 2)->willReturn($activityLogs);
 
         $this->assertEquals($activityLogs, $this->logger->findByParent($activityLog, 2, 2));
@@ -76,7 +101,7 @@ class ActivityLoggerTest extends \PHPUnit_Framework_TestCase
 
     public function testPersist()
     {
-        $activityLog = ActivityLog::create('default');
+        $activityLog = new ActivityLog('default');
 
         $this->storage->persist($activityLog)->shouldBeCalledTimes(1);
         $this->eventDispatcher->dispatch(
@@ -96,8 +121,8 @@ class ActivityLoggerTest extends \PHPUnit_Framework_TestCase
     public function testFlush()
     {
         $activityLogs = [
-            $this->logger->persist(ActivityLog::create('default')),
-            $this->logger->persist(ActivityLog::create('default')),
+            $this->logger->persist(new ActivityLog('default')),
+            $this->logger->persist(new ActivityLog('default')),
         ];
 
         $this->eventDispatcher->dispatch(

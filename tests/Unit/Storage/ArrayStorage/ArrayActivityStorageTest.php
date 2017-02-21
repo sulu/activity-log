@@ -13,6 +13,7 @@ namespace Sulu\Component\ActivityLog\Tests\Unit\Storage\ArrayStorage;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Sulu\Component\ActivityLog\Model\ActivityLog;
+use Sulu\Component\ActivityLog\Model\ActivityLogInterface;
 use Sulu\Component\ActivityLog\Storage\ArrayStorage\ArrayActivityLogStorage;
 
 /**
@@ -20,11 +21,31 @@ use Sulu\Component\ActivityLog\Storage\ArrayStorage\ArrayActivityLogStorage;
  */
 class ArrayActivityStorageTest extends \PHPUnit_Framework_TestCase
 {
+    public function testCreate()
+    {
+        $storage = new ArrayActivityLogStorage();
+
+        $activityLog = $storage->create('default');
+        $this->assertInstanceOf(ActivityLogInterface::class, $activityLog);
+        $this->assertEquals('default', $activityLog->getType());
+        $this->assertNotNull($activityLog->getUuid());
+    }
+
+    public function testCreateWithUuid()
+    {
+        $storage = new ArrayActivityLogStorage();
+
+        $activityLog = $storage->create('default', '123-123-123');
+        $this->assertInstanceOf(ActivityLogInterface::class, $activityLog);
+        $this->assertEquals('default', $activityLog->getType());
+        $this->assertEquals('123-123-123', $activityLog->getUuid());
+    }
+
     public function testFind()
     {
-        $activityLog = ActivityLog::create('default');
+        $activityLog = new ActivityLog('default');
 
-        $collection = new ArrayCollection([ActivityLog::create('default'), $activityLog, ActivityLog::create('default')]);
+        $collection = new ArrayCollection([new ActivityLog('default'), $activityLog, new ActivityLog('default')]);
         $storage = new ArrayActivityLogStorage($collection);
 
         $this->assertEquals($activityLog, $storage->find($activityLog->getUuid()));
@@ -32,7 +53,7 @@ class ArrayActivityStorageTest extends \PHPUnit_Framework_TestCase
 
     public function testFindNoResult()
     {
-        $collection = new ArrayCollection([ActivityLog::create('default'), ActivityLog::create('default')]);
+        $collection = new ArrayCollection([new ActivityLog('default'), new ActivityLog('default')]);
         $storage = new ArrayActivityLogStorage($collection);
 
         $this->assertNull($storage->find('123-123-123'));
@@ -40,7 +61,7 @@ class ArrayActivityStorageTest extends \PHPUnit_Framework_TestCase
 
     public function testFindAll()
     {
-        $activityLogs = [ActivityLog::create('default'), ActivityLog::create('default'), ActivityLog::create('default')];
+        $activityLogs = [new ActivityLog('default'), new ActivityLog('default'), new ActivityLog('default')];
         $collection = new ArrayCollection($activityLogs);
         $storage = new ArrayActivityLogStorage($collection);
 
@@ -51,8 +72,8 @@ class ArrayActivityStorageTest extends \PHPUnit_Framework_TestCase
 
     public function testFindByParent()
     {
-        $activityLog = ActivityLog::create('default');
-        $activityLogs = [ActivityLog::create('default'), ActivityLog::create('default'), ActivityLog::create('default')];
+        $activityLog = new ActivityLog('default');
+        $activityLogs = [new ActivityLog('default'), new ActivityLog('default'), new ActivityLog('default')];
 
         foreach ($activityLogs as $childActivity) {
             $childActivity->setParent($activityLog);
@@ -68,7 +89,7 @@ class ArrayActivityStorageTest extends \PHPUnit_Framework_TestCase
 
     public function testPersist()
     {
-        $activityLog = ActivityLog::create('default');
+        $activityLog = new ActivityLog('default');
         $storage = new ArrayActivityLogStorage();
 
         $this->assertEquals($activityLog, $storage->persist($activityLog));
@@ -77,8 +98,8 @@ class ArrayActivityStorageTest extends \PHPUnit_Framework_TestCase
 
     public function testPersistWithParent()
     {
-        $parentActivityLog = ActivityLog::create('default');
-        $activityLog = ActivityLog::create('default');
+        $parentActivityLog = new ActivityLog('default');
+        $activityLog = new ActivityLog('default');
         $activityLog->setParent($parentActivityLog);
 
         $storage = new ArrayActivityLogStorage();
