@@ -1,7 +1,7 @@
 {
     "name": "sulu/activity-log",
     "description": "Sulu library to manage activities",
-    "type": "lib",
+    "type": "library",
     "license": "MIT",
     "require": {
         "php": "^5.5 || ^7.0",
