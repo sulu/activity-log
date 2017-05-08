@@ -90,6 +90,75 @@ class ArrayActivityLogStorage implements ActivityLogStorageInterface
     /**
      * {@inheritdoc}
      */
+    public function findAllWithSearch(
+        $query = null,
+        $fields = null,
+        $page = 1,
+        $pageSize = null,
+        $sortColumn = null,
+        $sortOrder = null
+    ) {
+        if ($fields) {
+            throw new \Exception('property "fields" is currently not supported by this storage');
+        }
+
+        if ($sortColumn) {
+            throw new \Exception('property "sortColumn" is currently not supported by this storage');
+        }
+
+        $all = $this->collection->filter(
+            function ($activityLog) use ($query) {
+                return strpos($activityLog->getTitle(), $query) !== false;
+            }
+        );
+        $all = array_values($all->toArray());
+
+        if ($sortOrder) {
+            usort(
+                $all,
+                function ($objectA, $objectB) use ($sortOrder) {
+                    if ('desc' === strtolower($sortOrder)) {
+                        return strcmp($objectB->getTitle(), $objectA->getTitle());
+                    }
+
+                    return strcmp($objectA->getTitle(), $objectB->getTitle());
+                }
+            );
+        }
+
+        if ($pageSize) {
+            $all = array_slice($all, ($page - 1) * $pageSize, $pageSize);
+        }
+
+        return $all;
+    }
+
+    /**
+     * @param string $query
+     * @param array $fields
+     *
+     * @return int
+     */
+    public function getCountForAllWithSearch(
+        $query = null,
+        $fields = null
+    ) {
+        if ($fields) {
+            throw new \Exception('property "fields" is currently not supported by this storage');
+        }
+
+        $all = $this->collection->filter(
+            function ($activityLog) use ($query) {
+                return strpos($activityLog->getTitle(), $query) !== false;
+            }
+        );
+
+        return $all->count();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function findByParent(ActivityLogInterface $activityLog, $page = 1, $pageSize = null)
     {
         if (!array_key_exists($activityLog->getUuid(), $this->children)) {

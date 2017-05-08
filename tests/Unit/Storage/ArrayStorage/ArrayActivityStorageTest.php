@@ -70,6 +70,46 @@ class ArrayActivityStorageTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals([$activityLogs[2]], $storage->findAll(2, 2));
     }
 
+    public function testFindAllWithSearch()
+    {
+        $activityLogs = [
+            new ActivityLog('default'),
+            new ActivityLog('default'),
+            new ActivityLog('default'),
+            new ActivityLog('default'),
+        ];
+        $activityLogs[0]->setTitle('atest');
+        $activityLogs[2]->setTitle('ctest');
+        $activityLogs[3]->setTitle('btest');
+        $collection = new ArrayCollection($activityLogs);
+        $storage = new ArrayActivityLogStorage($collection);
+
+        $this->assertEquals([$activityLogs[0], $activityLogs[2], $activityLogs[3]], $storage->findAllWithSearch('test'));
+        $this->assertEquals([$activityLogs[0], $activityLogs[2]], $storage->findAllWithSearch('test', null, 1, 2));
+        $this->assertEquals([$activityLogs[3]], $storage->findAllWithSearch('test', null, 2, 2));
+        $this->assertEquals([$activityLogs[0], $activityLogs[3], $activityLogs[2]], $storage->findAllWithSearch('test', null, null, null, null, 'asc'));
+        $this->assertEquals([$activityLogs[2], $activityLogs[3], $activityLogs[0]], $storage->findAllWithSearch('test', null, null, null, null, 'desc'));
+        $this->assertEquals([$activityLogs[0], $activityLogs[3]], $storage->findAllWithSearch('test', null, 1, 2, null, 'asc'));
+        $this->assertEquals([$activityLogs[2]], $storage->findAllWithSearch('test', null, 2, 2, null, 'asc'));
+    }
+
+    public function testGetCountForAllWithSearch()
+    {
+        $activityLogs = [
+            new ActivityLog('default'),
+            new ActivityLog('default'),
+            new ActivityLog('default'),
+            new ActivityLog('default'),
+        ];
+        $activityLogs[0]->setTitle('atest');
+        $activityLogs[2]->setTitle('ctest');
+        $activityLogs[3]->setTitle('btest');
+        $collection = new ArrayCollection($activityLogs);
+        $storage = new ArrayActivityLogStorage($collection);
+
+        $this->assertEquals(3, $storage->getCountForAllWithSearch('test'));
+    }
+
     public function testFindByParent()
     {
         $activityLog = new ActivityLog('default');
