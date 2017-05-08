@@ -89,6 +89,8 @@ class ArrayActivityLogStorage implements ActivityLogStorageInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @throws \Exception
      */
     public function findAllWithSearch(
         $query = null,
@@ -134,15 +136,12 @@ class ArrayActivityLogStorage implements ActivityLogStorageInterface
     }
 
     /**
-     * @param string $query
-     * @param array $fields
+     * {@inheritdoc}
      *
-     * @return int
+     * @throws \Exception
      */
-    public function getCountForAllWithSearch(
-        $query = null,
-        $fields = null
-    ) {
+    public function getCountForAllWithSearch($query = null, $fields = null)
+    {
         if ($fields) {
             throw new \Exception('property "fields" is currently not supported by this storage');
         }

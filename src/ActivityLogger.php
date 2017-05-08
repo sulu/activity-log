@@ -89,10 +89,8 @@ class ActivityLogger implements ActivityLoggerInterface
     /**
      * {@inheritdoc}
      */
-    public function getCountForAllWithSearch(
-        $query = null,
-        $fields = null
-    ) {
+    public function getCountForAllWithSearch($query = null, $fields = null)
+    {
         return $this->storage->getCountForAllWithSearch($query, $fields);
     }
 
