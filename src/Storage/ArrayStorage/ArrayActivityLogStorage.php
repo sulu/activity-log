@@ -108,11 +108,15 @@ class ArrayActivityLogStorage implements ActivityLogStorageInterface
             throw new \Exception('property "sortColumn" is currently not supported by this storage');
         }
 
-        $all = $this->collection->filter(
-            function ($activityLog) use ($query) {
-                return strpos($activityLog->getTitle(), $query) !== false;
-            }
-        );
+        $all = $this->collection;
+        if ($query) {
+            $all = $all->filter(
+                function ($activityLog) use ($query) {
+                    return strpos($activityLog->getTitle(), $query) !== false;
+                }
+            );
+        }
+
         $all = array_values($all->toArray());
 
         if ($sortOrder) {
@@ -146,11 +150,14 @@ class ArrayActivityLogStorage implements ActivityLogStorageInterface
             throw new \Exception('property "fields" is currently not supported by this storage');
         }
 
-        $all = $this->collection->filter(
-            function ($activityLog) use ($query) {
-                return strpos($activityLog->getTitle(), $query) !== false;
-            }
-        );
+        $all = $this->collection;
+        if ($query) {
+            $all = $all->filter(
+                function ($activityLog) use ($query) {
+                    return strpos($activityLog->getTitle(), $query) !== false;
+                }
+            );
+        }
 
         return $all->count();
     }
