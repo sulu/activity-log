@@ -84,6 +84,7 @@ class ArrayActivityStorageTest extends \PHPUnit_Framework_TestCase
         $collection = new ArrayCollection($activityLogs);
         $storage = new ArrayActivityLogStorage($collection);
 
+        $this->assertEquals([$activityLogs[0], $activityLogs[1], $activityLogs[2], $activityLogs[3]], $storage->findAllWithSearch());
         $this->assertEquals([$activityLogs[0], $activityLogs[2], $activityLogs[3]], $storage->findAllWithSearch('test'));
         $this->assertEquals([$activityLogs[0], $activityLogs[2]], $storage->findAllWithSearch('test', null, 1, 2));
         $this->assertEquals([$activityLogs[3]], $storage->findAllWithSearch('test', null, 2, 2));
