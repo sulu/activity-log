@@ -78,9 +78,9 @@ class ArrayActivityStorageTest extends \PHPUnit_Framework_TestCase
             new ActivityLog('default'),
             new ActivityLog('default'),
         ];
-        $activityLogs[0]->setTitle('atest');
-        $activityLogs[2]->setTitle('ctest');
-        $activityLogs[3]->setTitle('btest');
+        $activityLogs[0]->setTitle('testA');
+        $activityLogs[2]->setTitle('testC');
+        $activityLogs[3]->setTitle('testB');
         $collection = new ArrayCollection($activityLogs);
         $storage = new ArrayActivityLogStorage($collection);
 
@@ -101,9 +101,9 @@ class ArrayActivityStorageTest extends \PHPUnit_Framework_TestCase
             new ActivityLog('default'),
             new ActivityLog('default'),
         ];
-        $activityLogs[0]->setTitle('atest');
-        $activityLogs[2]->setTitle('ctest');
-        $activityLogs[3]->setTitle('btest');
+        $activityLogs[0]->setTitle('testA');
+        $activityLogs[2]->setTitle('testC');
+        $activityLogs[3]->setTitle('testB');
         $collection = new ArrayCollection($activityLogs);
         $storage = new ArrayActivityLogStorage($collection);
 

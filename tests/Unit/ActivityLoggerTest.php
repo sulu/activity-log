@@ -101,9 +101,11 @@ class ActivityLoggerTest extends \PHPUnit_Framework_TestCase
     public function testGetCountForAllWithSearch()
     {
         $activityLogs = [new ActivityLog('default'), new ActivityLog('default')];
-        $this->storage->getCountForAllWithSearch('test', null)->willReturn($activityLogs);
+        $count = $this->storage->getCountForAllWithSearch('test', null)->willReturn($activityLogs);
 
         $this->assertEquals($activityLogs, $this->logger->getCountForAllWithSearch('test'));
+
+        return $count;
     }
 
     public function testFindByParent()

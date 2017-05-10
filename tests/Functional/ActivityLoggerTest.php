@@ -112,6 +112,43 @@ class ActivityLoggerTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(1, $this->logger->findAll(2, 2));
     }
 
+    /**
+     * Add three logs with a specific title and one without and check if only three items get returned by the method.
+     */
+    public function testFindAllWithSearch()
+    {
+        $activityLog = new ActivityLog('default');
+        $activityLog->setTitle('testA');
+        $this->collection->add($activityLog);
+        $activityLog = new ActivityLog('default');
+        $activityLog->setTitle('testB');
+        $this->collection->add($activityLog);
+        $activityLog = new ActivityLog('default');
+        $activityLog->setTitle('testC');
+        $this->collection->add($activityLog);
+        $this->collection->add(new ActivityLog('default'));
+
+        $this->assertCount(3, $this->logger->findAllWithSearch('test'));
+        $this->assertCount(2, $this->logger->findAllWithSearch('test', null, 1, 2));
+        $this->assertCount(1, $this->logger->findAllWithSearch('test', null, 2, 2));
+    }
+
+    public function testGetCountForAllWithSearch()
+    {
+        $activityLog = new ActivityLog('default');
+        $activityLog->setTitle('testA');
+        $this->collection->add($activityLog);
+        $activityLog = new ActivityLog('default');
+        $activityLog->setTitle('testB');
+        $this->collection->add($activityLog);
+        $activityLog = new ActivityLog('default');
+        $activityLog->setTitle('testC');
+        $this->collection->add($activityLog);
+        $this->collection->add(new ActivityLog('default'));
+
+        $this->assertEquals(3, $this->logger->getCountForAllWithSearch('test'));
+    }
+
     public function testFindByParent()
     {
         $parentActivityLog = new ActivityLog('default');
