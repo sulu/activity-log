@@ -2,7 +2,7 @@
 <phpunit colors="true" bootstrap="tests/bootstrap.php">
     <testsuites>
         <testsuite name="Sulu Activity Log">
-            <directory>./Tests</directory>
+            <directory>./tests</directory>
         </testsuite>
     </testsuites>
 
@@ -10,8 +10,7 @@
         <whitelist addUncoveredFilesFromWhitelist="true">
             <directory>.</directory>
             <exclude>
-                <directory>Resources/</directory>
-                <directory>Tests/</directory>
+                <directory>tests/</directory>
                 <directory>vendor/</directory>
             </exclude>
         </whitelist>

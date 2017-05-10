@@ -48,6 +48,37 @@ interface ActivityLoggerInterface
     public function findAll($page = 1, $pageSize = null);
 
     /**
+     * Find all activities filtered by a search query.
+     *
+     * @param string $query
+     * @param array $fields
+     * @param int $page
+     * @param int $pageSize
+     * @param string $sortColumn
+     * @param string $sortOrder
+     *
+     * @return ActivityLogInterface[]
+     */
+    public function findAllWithSearch(
+        $query = null,
+        $fields = null,
+        $page = 1,
+        $pageSize = null,
+        $sortColumn = null,
+        $sortOrder = null
+    );
+
+    /**
+     * Get count for all activities filtered by a search query.
+     *
+     * @param string $query
+     * @param array $fields
+     *
+     * @return int
+     */
+    public function getCountForAllWithSearch($query = null, $fields = null);
+
+    /**
      * Find activities by given parent.
      *
      * @param ActivityLogInterface $activityLog

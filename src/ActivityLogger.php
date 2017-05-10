@@ -75,6 +75,28 @@ class ActivityLogger implements ActivityLoggerInterface
     /**
      * {@inheritdoc}
      */
+    public function findAllWithSearch(
+        $query = null,
+        $fields = null,
+        $page = 1,
+        $pageSize = null,
+        $sortColumn = null,
+        $sortOrder = null
+    ) {
+        return $this->storage->findAllWithSearch($query, $fields, $page, $pageSize, $sortColumn, $sortOrder);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCountForAllWithSearch($query = null, $fields = null)
+    {
+        return $this->storage->getCountForAllWithSearch($query, $fields);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function findByParent(ActivityLogInterface $activityLog, $page = 1, $pageSize = null)
     {
         return $this->storage->findByParent($activityLog, $page, $pageSize);
