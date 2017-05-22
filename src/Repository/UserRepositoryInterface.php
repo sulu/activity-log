@@ -2,10 +2,9 @@
 
 namespace Sulu\Component\ActivityLog\Repository;
 
-use Sulu\Component\Security\Authentication\UserInterface;
-use Sulu\Component\Security\Authentication\UserRepositoryInterface as BaseUserRepositoryInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
-interface UserRepositoryInterface extends BaseUserRepositoryInterface
+interface UserRepositoryInterface
 {
     /**
      * Find a user by id.
