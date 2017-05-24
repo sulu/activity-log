@@ -2,9 +2,6 @@ sudo: false
 
 language: php
 
-services:
-  - elasticsearch
-
 cache:
   directories:
     - "$HOME/.composer/cache"
