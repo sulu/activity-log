@@ -85,7 +85,7 @@ interface ActivityLogStorageInterface
      * @param int $page
      * @param int $pageSize
      *
-     * @return ActivityLogInterface
+     * @return ActivityLogInterface[]
      */
     public function findByParent(ActivityLogInterface $activityLog, $page = 1, $pageSize = null);
 
